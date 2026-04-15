@@ -7,8 +7,9 @@
   <style>
     :root {
       --gold: #e8d19a;
-      --gold-soft: rgba(232, 209, 154, 0.45);
+      --gold-soft: rgba(232, 209, 154, 0.38);
       --bg-dark: #0b0810;
+      --text-light: #f4e6bf;
     }
 
     * {
@@ -24,13 +25,13 @@
         linear-gradient(180deg, #0d0a12, #0b0810);
       color: var(--gold);
       min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       padding:
         calc(env(safe-area-inset-top) + 20px)
         16px
         calc(env(safe-area-inset-bottom) + 20px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     .container {
@@ -39,6 +40,7 @@
     }
 
     .card {
+      width: 100%;
       border: 1px solid var(--gold-soft);
       border-radius: 22px;
       padding: 24px 20px;
@@ -60,7 +62,7 @@
       font-size: 28px;
       letter-spacing: 0.15em;
       margin-bottom: 12px;
-      color: #f4e6bf;
+      color: var(--text-light);
     }
 
     .desc {
@@ -71,49 +73,49 @@
       margin-bottom: 24px;
     }
 
-    .label {
-      font-size: 13px;
-      margin-bottom: 10px;
-      display: block;
-    }
-
     .date-row {
       display: grid;
-      grid-template-columns: 1.3fr 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
 
     .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      min-width: 0;
     }
 
-    .field span {
+    .field-label {
+      display: block;
       font-size: 12px;
       opacity: 0.75;
+      margin-bottom: 6px;
+      text-align: center;
     }
 
     input {
+      display: block;
       width: 100%;
-      padding: 15px 12px;
+      min-width: 0;
+      height: 50px;
+      padding: 0 10px;
       border-radius: 14px;
       border: 1px solid var(--gold-soft);
       background: rgba(255,255,255,0.02);
       color: var(--gold);
       font-size: 16px;
+      text-align: center;
       outline: none;
       appearance: none;
+      -webkit-appearance: none;
     }
 
     input::placeholder {
-      color: rgba(232, 209, 154, 0.35);
+      color: rgba(232, 209, 154, 0.32);
     }
 
     button {
       width: 100%;
       margin-top: 16px;
-      padding: 16px;
+      height: 50px;
       border-radius: 999px;
       border: none;
       font-size: 16px;
@@ -124,22 +126,22 @@
     }
 
     .result {
-      margin-top: 28px;
+      margin-top: 26px;
       text-align: center;
-      padding: 20px 12px 6px;
+      padding-top: 20px;
       border-top: 1px solid rgba(232, 209, 154, 0.16);
     }
 
     .result-label {
       font-size: 12px;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.18em;
       opacity: 0.6;
     }
 
     .number {
       font-size: 58px;
       line-height: 1;
-      min-height: 66px;
+      min-height: 64px;
       margin-top: 12px;
       color: #f6e8c3;
     }
@@ -148,21 +150,13 @@
       margin-top: 12px;
       font-size: 14px;
       line-height: 1.8;
-      opacity: 0.88;
       min-height: 26px;
-    }
-
-    .hint {
-      margin-top: 16px;
-      font-size: 11px;
-      text-align: center;
-      opacity: 0.5;
-      line-height: 1.7;
+      opacity: 0.88;
     }
 
     @media (min-width: 768px) {
       .card {
-        padding: 32px;
+        padding: 32px 28px;
       }
 
       h1 {
@@ -180,26 +174,23 @@
     <div class="card">
       <div class="sub">DECODE REALM</div>
       <h1>解境</h1>
-
       <div class="desc">
         輸入你的誕生之日，<br />
         讓數字顯現你的生命靈數
       </div>
 
-      <label class="label">出生日期</label>
-
       <div class="date-row">
         <div class="field">
-          <span>年</span>
-          <input id="year" type="number" inputmode="numeric" placeholder="例如 2003" />
+          <span class="field-label">年</span>
+          <input id="year" type="text" inputmode="numeric" autocomplete="bday-year" placeholder="2003" />
         </div>
         <div class="field">
-          <span>月</span>
-          <input id="month" type="number" inputmode="numeric" placeholder="03" />
+          <span class="field-label">月</span>
+          <input id="month" type="text" inputmode="numeric" autocomplete="bday-month" placeholder="03" />
         </div>
         <div class="field">
-          <span>日</span>
-          <input id="day" type="number" inputmode="numeric" placeholder="21" />
+          <span class="field-label">日</span>
+          <input id="day" type="text" inputmode="numeric" autocomplete="bday-day" placeholder="21" />
         </div>
       </div>
 
@@ -210,19 +201,26 @@
         <div class="number" id="num">—</div>
         <div class="text" id="text">你的結果將在這裡出現</div>
       </div>
-
-      <div class="hint">
-        將生日的所有數字相加，直到剩下一位數
-      </div>
     </div>
   </div>
 
   <script>
+    const yearInput = document.getElementById("year");
+    const monthInput = document.getElementById("month");
+    const dayInput = document.getElementById("day");
     const numEl = document.getElementById("num");
     const textEl = document.getElementById("text");
     const btn = document.getElementById("calcBtn");
 
     let animationTimer = null;
+
+    function onlyDigits(value) {
+      return value.replace(/\D/g, "");
+    }
+
+    function limitInput(el, maxLength) {
+      el.value = onlyDigits(el.value).slice(0, maxLength);
+    }
 
     function sumDigits(value) {
       return String(value)
@@ -256,17 +254,10 @@
     }
 
     function animateNumber(target) {
-      if (animationTimer) {
-        clearInterval(animationTimer);
-      }
+      if (animationTimer) clearInterval(animationTimer);
 
       let current = 0;
       numEl.textContent = "0";
-
-      if (target <= 0) {
-        numEl.textContent = "—";
-        return;
-      }
 
       animationTimer = setInterval(() => {
         current++;
@@ -277,7 +268,7 @@
           animationTimer = null;
           numEl.textContent = String(target);
         }
-      }, 90);
+      }, 80);
     }
 
     function getMeaning(n) {
@@ -296,13 +287,19 @@
     }
 
     function calculate() {
-      const year = document.getElementById("year").value.trim();
-      const month = document.getElementById("month").value.trim();
-      const day = document.getElementById("day").value.trim();
+      const year = yearInput.value.trim();
+      const month = monthInput.value.trim();
+      const day = dayInput.value.trim();
 
       if (!year || !month || !day) {
         numEl.textContent = "!";
         textEl.textContent = "請先完整輸入出生年月日";
+        return;
+      }
+
+      if (year.length !== 4 || month.length < 1 || day.length < 1) {
+        numEl.textContent = "!";
+        textEl.textContent = "請確認日期格式";
         return;
       }
 
@@ -312,7 +309,7 @@
         return;
       }
 
-      const digits = `${year}${month}${day}`.replace(/\D/g, "");
+      const digits = `${year}${month.padStart(2, "0")}${day.padStart(2, "0")}`;
       const total = digits.split("").reduce((sum, digit) => sum + Number(digit), 0);
       const result = reduceToSingleDigit(total);
 
@@ -320,12 +317,27 @@
       textEl.textContent = getMeaning(result);
     }
 
+    yearInput.addEventListener("input", () => {
+      limitInput(yearInput, 4);
+      if (yearInput.value.length === 4) monthInput.focus();
+    });
+
+    monthInput.addEventListener("input", () => {
+      limitInput(monthInput, 2);
+      if (monthInput.value.length === 2) dayInput.focus();
+    });
+
+    dayInput.addEventListener("input", () => {
+      limitInput(dayInput, 2);
+      if (dayInput.value.length === 2) calculate();
+    });
+
     btn.addEventListener("click", calculate);
 
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        calculate();
-      }
+    [yearInput, monthInput, dayInput].forEach((input) => {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") calculate();
+      });
     });
   </script>
 </body>
