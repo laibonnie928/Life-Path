@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>解境｜生命靈數</title>
+  <style>
+    :root {
+      --gold: #e8d19a;
+      --gold-soft: rgba(232, 209, 154, 0.45);
+      --bg-dark: #0b0810;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", serif;
+      background:
+        radial-gradient(circle at top, rgba(232, 209, 154, 0.12), transparent 30%),
+        linear-gradient(180deg, #0d0a12, #0b0810);
+      color: var(--gold);
+      min-height: 100vh;
+      padding:
+        calc(env(safe-area-inset-top) + 20px)
+        16px
+        calc(env(safe-area-inset-bottom) + 20px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .card {
+      border: 1px solid var(--gold-soft);
+      border-radius: 22px;
+      padding: 24px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .sub {
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 0.28em;
+      opacity: 0.65;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      letter-spacing: 0.15em;
+      margin-bottom: 12px;
+      color: #f4e6bf;
+    }
+
+    .desc {
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.8;
+      opacity: 0.82;
+      margin-bottom: 24px;
+    }
+
+    .label {
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .date-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field span {
+      font-size: 12px;
+      opacity: 0.75;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--gold-soft);
+      background: rgba(255,255,255,0.02);
+      color: var(--gold);
+      font-size: 16px;
+      outline: none;
+      appearance: none;
+    }
+
+    input::placeholder {
+      color: rgba(232, 209, 154, 0.35);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 999px;
+      border: none;
+      font-size: 16px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #b99148, #e8d19a);
+      color: #1b1209;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 28px;
+      text-align: center;
+      padding: 20px 12px 6px;
+      border-top: 1px solid rgba(232, 209, 154, 0.16);
+    }
+
+    .result-label {
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      opacity: 0.6;
+    }
+
+    .number {
+      font-size: 58px;
+      line-height: 1;
+      min-height: 66px;
+      margin-top: 12px;
+      color: #f6e8c3;
+    }
+
+    .text {
+      margin-top: 12px;
+      font-size: 14px;
+      line-height: 1.8;
+      opacity: 0.88;
+      min-height: 26px;
+    }
+
+    .hint {
+      margin-top: 16px;
+      font-size: 11px;
+      text-align: center;
+      opacity: 0.5;
+      line-height: 1.7;
+    }
+
+    @media (min-width: 768px) {
+      .card {
+        padding: 32px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      .number {
+        font-size: 68px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="sub">DECODE REALM</div>
+      <h1>解境</h1>
+
+      <div class="desc">
+        輸入你的誕生之日，<br />
+        讓數字顯現你的生命靈數
+      </div>
+
+      <label class="label">出生日期</label>
+
+      <div class="date-row">
+        <div class="field">
+          <span>年</span>
+          <input id="year" type="number" inputmode="numeric" placeholder="例如 2003" />
+        </div>
+        <div class="field">
+          <span>月</span>
+          <input id="month" type="number" inputmode="numeric" placeholder="03" />
+        </div>
+        <div class="field">
+          <span>日</span>
+          <input id="day" type="number" inputmode="numeric" placeholder="21" />
+        </div>
+      </div>
+
+      <button id="calcBtn" type="button">開始計算</button>
+
+      <div class="result">
+        <div class="result-label">LIFE PATH NUMBER</div>
+        <div class="number" id="num">—</div>
+        <div class="text" id="text">你的結果將在這裡出現</div>
+      </div>
+
+      <div class="hint">
+        將生日的所有數字相加，直到剩下一位數
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const numEl = document.getElementById("num");
+    const textEl = document.getElementById("text");
+    const btn = document.getElementById("calcBtn");
+
+    let animationTimer = null;
+
+    function sumDigits(value) {
+      return String(value)
+        .split("")
+        .reduce((sum, digit) => sum + Number(digit), 0);
+    }
+
+    function reduceToSingleDigit(value) {
+      let total = value;
+      while (total > 9) {
+        total = sumDigits(total);
+      }
+      return total;
+    }
+
+    function isValidDate(year, month, day) {
+      const y = Number(year);
+      const m = Number(month);
+      const d = Number(day);
+
+      if (!y || !m || !d) return false;
+      if (m < 1 || m > 12) return false;
+      if (d < 1 || d > 31) return false;
+
+      const testDate = new Date(y, m - 1, d);
+      return (
+        testDate.getFullYear() === y &&
+        testDate.getMonth() === m - 1 &&
+        testDate.getDate() === d
+      );
+    }
+
+    function animateNumber(target) {
+      if (animationTimer) {
+        clearInterval(animationTimer);
+      }
+
+      let current = 0;
+      numEl.textContent = "0";
+
+      if (target <= 0) {
+        numEl.textContent = "—";
+        return;
+      }
+
+      animationTimer = setInterval(() => {
+        current++;
+        numEl.textContent = current;
+
+        if (current >= target) {
+          clearInterval(animationTimer);
+          animationTimer = null;
+          numEl.textContent = String(target);
+        }
+      }, 90);
+    }
+
+    function getMeaning(n) {
+      const meanings = {
+        1: "你擁有開創與前行的能量。",
+        2: "你擁有溫柔、平衡與協調的力量。",
+        3: "你擁有創意、表達與閃耀自我的天賦。",
+        4: "你擁有穩定、秩序與踏實建構的能力。",
+        5: "你擁有自由、探索與突破界線的靈魂。",
+        6: "你擁有守護、照顧與溫暖陪伴的特質。",
+        7: "你擁有洞察、思考與向內探索的深度。",
+        8: "你擁有實踐目標與掌握局勢的力量。",
+        9: "你擁有包容、理想與給予他人的能量。"
+      };
+      return meanings[n] || "你的生命數字正在顯現。";
+    }
+
+    function calculate() {
+      const year = document.getElementById("year").value.trim();
+      const month = document.getElementById("month").value.trim();
+      const day = document.getElementById("day").value.trim();
+
+      if (!year || !month || !day) {
+        numEl.textContent = "!";
+        textEl.textContent = "請先完整輸入出生年月日";
+        return;
+      }
+
+      if (!isValidDate(year, month, day)) {
+        numEl.textContent = "!";
+        textEl.textContent = "日期格式不正確，請重新確認";
+        return;
+      }
+
+      const digits = `${year}${month}${day}`.replace(/\D/g, "");
+      const total = digits.split("").reduce((sum, digit) => sum + Number(digit), 0);
+      const result = reduceToSingleDigit(total);
+
+      animateNumber(result);
+      textEl.textContent = getMeaning(result);
+    }
+
+    btn.addEventListener("click", calculate);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        calculate();
+      }
+    });
+  </script>
+</body>
+</html>
